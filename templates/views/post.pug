@@ -1,0 +1,102 @@
+extends ../layouts/default
+
+//- append head
+	link(href='/styles/lightbox/lightbox.min.css' rel='stylesheet')
+//- block css
+	link(rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css")
+
+block content
+	.row: .col-sm-10.col-sm-offset-1.col-md-8.col-md-offset-2
+		article
+			p: a(href='/blog') &larr; back to the blog
+			hr
+			if !data.post
+				h2 Invalid Post.
+			else
+				header
+					h1= data.post.title
+					h5.text-muted Posted 
+						if data.post.publishedDate
+							| on #{data.post._.publishedDate.format('MMMM Do, YYYY')} 
+						if data.post.categories && data.post.categories.length
+							| in 
+							each cat, cat_i in data.post.categories
+								a(href='/blog/' + cat.key)= cat.name
+								if cat_i < data.post.categories.length - 1
+									| , 
+								else
+									|  
+						if data.post.author
+							| by #{data.post.author.name.first}
+				.post
+					if data.post.image.exists
+						.image-wrap
+							img(src=data.post._.image.fit(750,450)).img-responsive
+						//- a(href=image.limit(900,600), title=data.post.title + ' image ' + (i+1), rel=data.post.title).gallery-image
+							img(src=image.fill(300,300), alt=data.post.title + ' image ' + (i+1)).img-thumbnail
+					!= data.post.content.full
+//- block js
+	script(src='/js/lightbox/lightbox.min.js')
+//-block js
+	script(src="/js/lib/fancybox/jquery.fancybox.pack.js")
+	script.
+		jQuery(function($) {
+			$('.gallery-image').fancybox({
+				prevEffect: 'none',
+				nextEffect: 'none',
+				closeBtn: false,
+				helpers: {
+					titl: {},
+					buttons: {}
+				}
+			});
+		});
+block js
+	//- script(src='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js')
+	script.
+		jQuery(function($) {
+			//hljs.initHighlightingOnLoad();
+			
+			$('.zoom-point4').click(function() {
+				var clicks = $(this).data('clicks');
+				
+				// Default settings for others
+				$('.zoom-point4:not(this)').css({
+					'box-shadow': 'none',
+					'-moz-transform': 'scale(1)',
+					'-webkit-transform': 'scale(1)',
+					'transform': 'scale(1)',
+					'z-index': '0',
+					'opacity': '1'
+				}).data("clicks", false);
+				
+				if (clicks) {
+					// This handler for odd clicks
+					$(this).css({
+						'box-shadow': 'none',
+						'-moz-transform': 'scale(1)',
+						'-webkit-transform': 'scale(1)',
+						'transform': 'scale(1)',
+						'z-index': '0',
+						'opacity': '1'
+					});
+				} else {
+					// This handler for even clicks
+					$('html, body').animate({
+						scrollTop : $(this).offset().top - 180
+					}, 500);
+					
+					$(this).css({
+						'box-shadow': '0 4px 8px 0 rgba(0, 0, 0, 0.5), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
+						'-moz-transform': 'scale(1.4)',
+						'-webkit-transform': 'scale(1.4)',
+						'transform': 'scale(1.4)',
+						'z-index': '1',
+						'opacity': '.9'
+					});
+				}
+				
+				$(this).data("clicks", !clicks);
+			});
+			
+		});
